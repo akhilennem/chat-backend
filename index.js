@@ -1,0 +1,63 @@
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const mongoose=require('mongoose')
+const cors = require("cors");
+
+const userRoute=require('./routes/userRoute');
+const exp = require("constants");
+
+
+const app = express();
+app.use(express.json())
+app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow specific origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+  allowedHeaders: ['Content-Type', 'Authorization'] // Allowed headers
+}));
+app.use('/user',userRoute)
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Adjust this to your frontend URL
+    methods: ["GET", "POST"]
+  }
+});
+
+
+app.use(express.json());
+
+// Store messages in an array (for testing)
+let messages = [];
+
+// API to get old messages
+app.get("/messages", (req, res) => {
+  res.json(messages);
+});
+
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  socket.on("send_message", (data) => {
+    messages.push(data); // Save the message in the server memory
+    io.emit("receive_message", data); // Broadcast to all users
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
+  });
+});
+
+server.listen(5000, () => {
+  console.log("Server running on port 5000");
+});
+
+
+mongoose.connect('mongodb+srv://akhilnmtechintl:h2w0tMY73yxqgJmE@cloudapi.x5im9.mongodb.net/content?retryWrites=true&w=majority') 
+.then(() =>{
+  
+console.log('db connected')
+
+})
+  
