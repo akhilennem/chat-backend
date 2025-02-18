@@ -29,10 +29,11 @@ exports.login = async (req,res)=>{
     const resp = await User.findOne({
         email:data.email
     })
+    console.log('response ',resp)
     if(resp){
         const comparepass=await bcrypt.compare(data.password,resp.password)
         if(comparepass){
-            return res.send({message:"login success",success:true})
+            return res.send({message:"login success",success:true,data:resp})
         }else{
         return res.send({message:"Failed",success:false})
         
@@ -150,3 +151,25 @@ exports.addShop =  async (req,res) =>{
         
 //     }
 // }
+
+
+
+
+
+
+
+
+
+const Messages=require('../models/messages')
+
+exports.messages = async (req, res) => {
+    try {
+        console.log('messages');
+        const messages = await Messages.find().lean();  // Use lean() here
+        res.json(messages);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+  

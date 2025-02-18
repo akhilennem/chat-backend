@@ -6,5 +6,7 @@ router.route('/add-shop').post(userController.addShop);
 router.post('/login',userController.login);
 router.put('/update',userController.updateUser);
 router.delete('/delete',userController.deleteUser);
+router.get('/messages',userController.messages);
+
 
 module.exports = router;
