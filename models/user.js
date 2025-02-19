@@ -12,6 +12,9 @@ const userSchema = mongoose.Schema({
  password: {
     type: String
  },
+ socketID: {
+   type: String
+},
 })
 
 module.exports = mongoose.model('User',userSchema)

@@ -7,9 +7,9 @@ const messageSchema=mongoose.Schema({
      to: {
         type: String
      },
-    // user:{
-    //     type:String
-    // },
+    dashboardID:{
+        type:String
+    },
     message:{
         type:String
     }

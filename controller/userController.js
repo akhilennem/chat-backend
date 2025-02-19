@@ -172,7 +172,7 @@ exports.messages = async (req, res) => {
                 { user: to, to: from }
             ]
         }).lean();  // Use lean() here
-        console.log(messages)
+        // console.log(messages)
         res.json(messages);
     } catch (err) {
         res.status(500).json({ error: err.message });
