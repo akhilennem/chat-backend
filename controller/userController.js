@@ -164,8 +164,15 @@ const Messages=require('../models/messages')
 
 exports.messages = async (req, res) => {
     try {
-        console.log('messages');
-        const messages = await Messages.find().lean();  // Use lean() here
+        const {from,to}=req.query;
+        console.log('get messages ',from ,to)
+        const messages = await Messages.find({
+            $or: [
+                { user: from, to: to },
+                { user: to, to: from }
+            ]
+        }).lean();  // Use lean() here
+        console.log(messages)
         res.json(messages);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -173,3 +180,21 @@ exports.messages = async (req, res) => {
 };
 
   
+exports.getUsers=async (req,res)=>{
+    try { 
+
+        const users=await User.find({email:req.query.email},{email:1,name:1})
+
+        if(users.length>0){
+            return res.send({users,success:true})
+        }else{
+            return res.send({message:'No users found',success:false})
+        }
+
+
+    } catch (error) {
+        
+        return res.send(error.message)
+
+    }
+}

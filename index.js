@@ -27,7 +27,12 @@ const io = new Server(server, {
 
 
 app.use(express.json());
+
+
+
 const Messages=require('./models/messages')
+
+
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
@@ -48,7 +53,7 @@ server.listen(5000, () => {
 });
 
 
-mongoose.connect('mongodb+srv://akhilnmtechintl:h2w0tMY73yxqgJmE@cloudapi.x5im9.mongodb.net/content?retryWrites=true&w=majority') 
+mongoose.connect('mongodb+srv://akhilnmtechintl:h2w0tMY73yxqgJmE@cloudapi.x5im9.mongodb.net/my-messages?retryWrites=true&w=majority') 
 .then(() =>{
   
 console.log('db connected')
