@@ -198,3 +198,57 @@ exports.getUsers=async (req,res)=>{
 
     }
 }
+
+const MessageDashboard=require('../models/messageDashboard')
+exports.getUserDashBoard = async (req, res) => {
+    try {
+        const email = req.query.email;
+
+        const pipeline = [
+            {
+                "$match": {
+                    "$or": [
+                        { "user": email },  // Sent messages
+                        { "to": email }     // Received messages
+                    ]
+                },
+            },
+            {
+                $lookup: {
+                    from: 'messages',
+                    localField: '_id',
+                    foreignField: 'dashboardID',
+                    as: 'usermessages'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'to',
+                    foreignField: 'email',
+                    as: 'reciever'
+                }
+            },{
+                $lookup: {
+                    from: 'users',
+                    localField: 'from',
+                    foreignField: 'email',
+                    as: 'fromuser'
+                }
+
+            },
+           
+        ];
+
+        const dashboard = await MessageDashboard.aggregate(pipeline);
+
+        if (dashboard.length > 0) {
+            return res.send({ dashboard, success: true });
+        } else {
+            return res.send({ message: 'No data found', success: false });
+        }
+
+    } catch (error) {
+        return res.send(error.message);
+    }
+};

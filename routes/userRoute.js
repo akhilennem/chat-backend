@@ -9,4 +9,5 @@ router.delete('/delete',userController.deleteUser);
 router.get('/messages',userController.messages);
 
 router.get('/get-users',userController.getUsers);
+router.get('/get-dashboard',userController.getUserDashBoard);
 module.exports = router;

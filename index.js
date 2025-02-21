@@ -35,6 +35,7 @@ const User=require('./models/user')
 const MessageDashboard=require('./models/messageDashboard')
 
 io.on("connection", (socket) => {
+  
   console.log(`User connected: ${socket.id}`);
 
   socket.on("send_message", async (data) => {
