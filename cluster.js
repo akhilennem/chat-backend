@@ -11,7 +11,7 @@ cluster.setupPrimary({
 
 if (cluster.isMaster) {
     const numCPUs = os.cpus().length; // Get the number of CPU cores
-
+    console.log(numCPUs)
     console.log(`Master process ${process.pid} is running`);
 
     // Fork workers
