@@ -34,41 +34,67 @@ const Messages=require('./models/messages')
 const User=require('./models/user')
 const MessageDashboard=require('./models/messageDashboard')
 
-io.on("connection", (socket) => {
-  
+io.on("connection", async (socket) => {
   console.log(`User connected: ${socket.id}`);
+  console.log(`Email: ${socket.handshake.query.userEmail}`);
+  // Update user's socketID when they connect
+  try {
+    await User.findOneAndUpdate(
+      { email: socket.handshake.query.userEmail }, 
+      { $set: { socketID: socket.id } }
+    );
+  } catch (err) {
+    console.error("Error updating socketID:", err);
+  }
 
   socket.on("send_message", async (data) => {
+    try {
+      console.log('Message received:', data);
+
+      // Find the recipient's socket ID
+      const recipient = await User.findOne({ email: data.to });
 
 
-    User.findOneAndUpdate({email:data.user},{$set:{
-      socketID:socket.id
-    }})
-    console.log('message recieved ',data)
-    const ifExist=await MessageDashboard.findOne({_id:data.chatID})
-    if(ifExist){
-      let newMessage=new Messages(data)
-      newMessage.dashboardID=data.chatID;
-      await newMessage.save()
-      data.chatID=data.chatID;
-      io.emit("receive_message", data); 
-    }else{
-    const from=data.user;
-    const to=data.to;
-   const dashboardData={from:from,to:to} 
-   const saveDashBoard = new MessageDashboard(dashboardData);
-   const savedData = await saveDashBoard.save()
-   const newMessage=new Messages(data)
-   newMessage.dashboardID=savedData._id
-   await newMessage.save()
-   data.chatID=savedData._id;
-    io.to(socket.id).emit("receive_message", data); 
-  }
-  
-});
+      // Check if the chat exists
+      const ifExist = await MessageDashboard.findOne({ _id: data.chatID });
 
-  socket.on("disconnect", () => {
+      if (ifExist) {
+        let newMessage = new Messages(data);
+        newMessage.dashboardID = data.chatID;
+        await newMessage.save();
+        data.chatID = data.chatID;
+      } else {
+        // Create a new chat dashboard
+        const dashboardData = { from: data.user, to: data.to };
+        const saveDashBoard = new MessageDashboard(dashboardData);
+        const savedData = await saveDashBoard.save();
+        
+        let newMessage = new Messages(data);
+        newMessage.dashboardID = savedData._id;
+        await newMessage.save();
+        data.chatID = savedData._id;
+      }
+
+      if (recipient || recipient.socketID) {
+        io.to(recipient.socketID).emit("receive_message", data);
+      }
+    } catch (err) {
+      console.error("Error processing message:", err);
+    }
+  });
+
+  socket.on("disconnect", async () => {
     console.log(`User disconnected: ${socket.id}`);
+
+    // Remove the socket ID when the user disconnects
+    try {
+      await User.findOneAndUpdate(
+        { socketID: socket.id }, 
+        { $set: { socketID: "" } }
+      );
+    } catch (err) {
+      console.error("Error removing socketID:", err);
+    }
   });
 });
 
