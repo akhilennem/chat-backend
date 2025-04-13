@@ -182,8 +182,12 @@ exports.messages = async (req, res) => {
   
 exports.getUsers=async (req,res)=>{
     try { 
-
-        const users=await User.find({email:req.query.email},{email:1,name:1})
+        const users = await User.find(
+            { email: { $regex: `^${req.query.email}`, $options: "i" } }, 
+            { email: 1, name: 1 }
+          );
+          
+        // const users=await User.find({email:req.query.email},{email:1,name:1})
 
         if(users.length>0){
             return res.send({users,success:true})
