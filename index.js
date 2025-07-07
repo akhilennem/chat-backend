@@ -102,8 +102,9 @@ server.listen(5000, () => {
   console.log("Server running on port 5000");
 });
 
-
-mongoose.connect('mongodb+srv://akhilnmtechintl:h2w0tMY73yxqgJmE@cloudapi.x5im9.mongodb.net/my-messages?retryWrites=true&w=majority') 
+const url="mongodb://localhost:27017/"
+// const url="mongodb+srv://akhilnmtechintl:h2w0tMY73yxqgJmE@cloudapi.x5im9.mongodb.net/my-messages?retryWrites=true&w=majority"
+mongoose.connect(url) 
 .then(() =>{
   
 console.log('db connected')
